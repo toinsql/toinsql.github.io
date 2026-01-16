@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Munera Woke - Party Game</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        /* Estilo Baseado no Skeleton Party Pack */
+        body { font-family: 'Courier New', monospace; background: #121212; color: #e0e0e0; text-align: center; padding: 20px; }
+        h1 { color: #ffcc00; text-transform: uppercase; border-bottom: 2px solid #ffcc00; display: inline-block; padding-bottom: 5px; }
+        
+        .container { max-width: 800px; margin: 0 auto; border: 4px solid #fff; padding: 20px; min-height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center;}
+        
+        input { background: #333; border: 1px solid #ffcc00; color: #fff; padding: 10px; width: 80%; margin: 10px 0; font-family: inherit; }
+        button { background: #ffcc00; color: #000; border: none; padding: 15px 30px; font-size: 1.2rem; cursor: pointer; font-weight: bold; margin-top: 20px; font-family: inherit; }
+        button:hover { background: #e6b800; transform: scale(1.05); }
+        button:disabled { background: #555; cursor: not-allowed; }
+
+        .hidden { display: none !important; }
+        
+        /* Estilos Específicos do Jogo */
+        .woke-phrase { font-style: italic; color: #888; margin-bottom: 30px; }
+        .player-list { list-style: none; padding: 0; width: 100%; }
+        .player-list li { background: #222; margin: 5px; padding: 10px; border: 1px dashed #555; }
+        
+        .battle-area { font-size: 1.5rem; margin: 20px 0; }
+        .vs { color: #ff0000; font-weight: bold; font-size: 2rem; margin: 10px 0; }
+        .reason { font-size: 1rem; color: #aaa; margin-top: 20px; border: 1px solid #444; padding: 10px; text-align: left;}
+        
+        #api-input-area { margin-bottom: 20px; border-top: 1px solid #333; padding-top: 10px; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+    <h1>Munera Woke</h1>
+    
+    <div class="container">
+        
+        <div id="screen-menu">
+            <p class="woke-phrase">"Cancelando CPFs e opiniões desde 2025."</p>
+            <button onclick="setupHost()">CRIAR SALA (HOST)</button>
+            <br><br>
+            <p>Ou entre numa sala:</p>
+            <p id="client-status">Aguardando Link...</p>
+        </div>
+
+        <div id="screen-lobby" class="hidden">
+            <h2 id="lobby-title">Sala de Espera</h2>
+            <div id="host-link-area" class="hidden">
+                <p>Mande este link para os amigos:</p>
+                <input type="text" id="share-link" readonly onclick="this.select()">
+                
+                <div id="api-input-area">
+                    <p>🔒 ADMIN: Cole sua API Key do Google Gemini aqui:</p>
+                    <input type="password" id="api-key" placeholder="AIzaSy...">
+                </div>
+
+                <button onclick="startGame()">INICIAR TORNEIO</button>
+            </div>
+            <p>Jogadores Conectados:</p>
+            <ul id="players-ul" class="player-list"></ul>
+            <p id="msg-waiting-host" class="hidden">Esperando o Host iniciar...</p>
+        </div>
+
+        <div id="screen-input" class="hidden">
+            <h2>Hora da Convocação</h2>
+            <p>O que você vai invocar para a batalha?</p>
+            <input type="text" id="creation-input" placeholder="Ex: Um Capivara de Terno" maxlength="50">
+            <button onclick="submitCreation()">ENVIAR</button>
+            <p id="input-status"></p>
+        </div>
+
+        <div id="screen-battle" class="hidden">
+            <h2>⚔️ BATALHA ⚔️</h2>
+            <div class="battle-area">
+                <div id="p1-name">Jogador 1</div>
+                <div style="font-size: 0.8em; color: #ffcc00;" id="p1-creation">Criação 1</div>
+                
+                <div class="vs">VS</div>
+                
+                <div id="p2-name">Jogador 2</div>
+                <div style="font-size: 0.8em; color: #ffcc00;" id="p2-creation">Criação 2</div>
+            </div>
+            <div id="loading-ai" class="hidden">🤖 A IA está julgando quem é mais cringe...</div>
+            <div id="battle-result" class="hidden">
+                <h3 style="color: #00ff00;">VENCEDOR: <span id="winner-name"></span></h3>
+                <div class="reason" id="ai-reason"></div>
+                <button id="next-btn" class="hidden" onclick="nextBattle()">PRÓXIMA BATALHA</button>
+            </div>
+        </div>
+        
+        <div id="screen-champion" class="hidden">
+            <h1 style="color: gold;">🏆 CAMPEÃO 🏆</h1>
+            <h2 id="final-winner">Nome</h2>
+            <p>A criação suprema:</p>
+            <h3 id="final-creation" style="color: #ffcc00;">Coisa</h3>
+            <button onclick="location.reload()">VOLTAR AO MENU</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- VARIÁVEIS GLOBAIS ---
+        const peer = new Peer();
+        let myId = null;
+        let hostConn = null; // Para clientes
+        let connections = []; // Para host
+        let isHost = false;
+        
+        // Estado do Jogo
+        let players = []; // [{id, name, creation}]
+        let battleQueue = [];
+        let currentRound = [];
+        
+        // Elementos UI
+        const screens = ['menu', 'lobby', 'input', 'battle', 'champion'];
+        function showScreen(name) {
+            screens.forEach(s => document.getElementById('screen-'+s).classList.add('hidden'));
+            document.getElementById('screen-'+name).classList.remove('hidden');
+        }
+
+        // --- INICIALIZAÇÃO P2P ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetHostId = urlParams.get('id');
+
+        peer.on('open', (id) => {
+            myId = id;
+            if (targetHostId) {
+                // É CLIENTE
+                joinGame(targetHostId);
+            }
+        });
+
+        // --- LÓGICA DO HOST ---
+        function setupHost() {
+            isHost = true;
+            showScreen('lobby');
+            document.getElementById('host-link-area').classList.remove('hidden');
+            document.getElementById('share-link').value = window.location.href.split('?')[0] + '?id=' + myId;
+            
+            // Adiciona o próprio host na lista
+            players.push({ id: myId, name: "Host (Você)", creation: "" });
+            updateLobbyUI();
+
+            peer.on('connection', (conn) => {
+                connections.push(conn);
+                
+                conn.on('open', () => {
+                    // Novo jogador entrou
+                    players.push({ id: conn.peer, name: "Jogador " + (players.length + 1), connection: conn, creation: "" });
+                    broadcast({ type: 'UPDATE_PLAYERS', data: players.map(p => ({id: p.id, name: p.name})) });
+                    updateLobbyUI();
+                });
+
+                conn.on('data', (data) => handleDataFromClient(data, conn.peer));
+            });
+        }
+
+        function startGame() {
+            const apiKey = document.getElementById('api-key').value;
+            if (!apiKey) { alert("O Host precisa colocar a API Key do Gemini!"); return; }
+            if (players.length < 2) { alert("Precisa de pelo menos 2 jogadores!"); return; }
+
+            broadcast({ type: 'GOTO_INPUT' });
+            showScreen('input');
+        }
+
+        function handleDataFromClient(data, peerId) {
+            if (data.type === 'SUBMIT_CREATION') {
+                const p = players.find(p => p.id === peerId);
+                if (p) {
+                    p.creation = data.content;
+                    checkAllSubmissions();
+                }
+            }
+        }
+
+        function checkAllSubmissions() {
+            // Se o Host também enviou (simulando UI do host no loop principal)
+            const pending = players.filter(p => !p.creation);
+            if (pending.length === 0) {
+                startTournament();
+            } else {
+                // Atualiza status para todos (ex: "3/4 prontos")
+                broadcast({ type: 'STATUS_UPDATE', msg: `${players.length - pending.length}/${players.length} enviaram...` });
+                document.getElementById('input-status').innerText = `${players.length - pending.length}/${players.length} enviaram...`;
+            }
+        }
+
+        // --- LÓGICA DO JOGO (TORNEIO) ---
+        function startTournament() {
+            // Clona array e embaralha
+            currentRound = [...players];
+            currentRound.sort(() => Math.random() - 0.5);
+            
+            generateBattles();
+        }
+
+        function generateBattles() {
+            battleQueue = [];
+            // Cria pares
+            for (let i = 0; i < currentRound.length; i += 2) {
+                if (i + 1 < currentRound.length) {
+                    battleQueue.push({ p1: currentRound[i], p2: currentRound[i+1] });
+                } else {
+                    // Bye (passa direto)
+                    battleQueue.push({ p1: currentRound[i], p2: null });
+                }
+            }
+            // Limpa lista para próxima rodada
+            currentRound = []; 
+            nextBattle();
+        }
+
+        function nextBattle() {
+            if (battleQueue.length === 0) {
+                // Fim da rodada
+                if (currentRound.length === 1) {
+                    // TEMOS UM CAMPEÃO
+                    const champ = currentRound[0];
+                    broadcast({ type: 'SHOW_CHAMPION', p: {name: champ.name, creation: champ.creation} });
+                    showChampion(champ.name, champ.creation);
+                    return;
+                }
+                // Nova rodada
+                generateBattles();
+                return;
+            }
+
+            const battle = battleQueue.shift();
+            
+            if (!battle.p2) {
+                // BYE logic
+                currentRound.push(battle.p1);
+                // Avisa que fulano passou direto (pode implementar tela depois)
+                nextBattle(); 
+                return;
+            }
+
+            // Mostra batalha para todos
+            const battleData = { 
+                p1: { name: battle.p1.name, creation: battle.p1.creation }, 
+                p2: { name: battle.p2.name, creation: battle.p2.creation } 
+            };
+            broadcast({ type: 'SHOW_BATTLE', data: battleData });
+            showBattleUI(battleData);
+
+            // Host chama a IA
+            callGeminiAPI(battle.p1, battle.p2);
+        }
+
+        async function callGeminiAPI(player1, player2) {
+            document.getElementById('loading-ai').classList.remove('hidden');
+            document.getElementById('battle-result').classList.add('hidden');
+            
+            const apiKey = document.getElementById('api-key').value;
+            const prompt = `
+            Você é um juiz de batalha engraçado. 
+            Lutador 1: "${player1.name}" usando "${player1.creation}".
+            Lutador 2: "${player2.name}" usando "${player2.creation}".
+            Quem vence? Escolha UM. Seja sarcástico.
+            Responda APENAS neste formato JSON:
+            {
+                "winner_id": 1 ou 2,
+                "reason": "motivo engraçado aqui"
+            }
+            `;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                
+                const data = await response.json();
+                const text = data.candidates[0].content.parts[0].text;
+                // Limpeza básica para extrair JSON caso a IA mande markdown
+                const jsonStr = text.replace(/```json|```/g, '').trim();
+                const result = JSON.parse(jsonStr);
+
+                const winner = result.winner_id == 1 ? player1 : player2;
+                const reason = result.reason;
+
+                // Salva vencedor na próxima rodada
+                currentRound.push(winner);
+
+                // Envia resultado
+                const resData = { winnerName: winner.name, reason: reason };
+                broadcast({ type: 'SHOW_RESULT', data: resData });
+                showResultUI(resData);
+
+            } catch (error) {
+                console.error(error);
+                alert("Erro na IA. O Host decide: Player 1 avança.");
+                currentRound.push(player1);
+                nextBattle();
+            }
+        }
+
+        // --- LÓGICA DO CLIENTE ---
+        function joinGame(hostId) {
+            document.getElementById('client-status').innerText = "Conectando...";
+            hostConn = peer.connect(hostId);
+            
+            hostConn.on('open', () => {
+                document.getElementById('screen-menu').classList.add('hidden');
+                document.getElementById('screen-lobby').classList.remove('hidden');
+                document.getElementById('msg-waiting-host').classList.remove('hidden');
+            });
+
+            hostConn.on('data', (msg) => {
+                if (msg.type === 'UPDATE_PLAYERS') {
+                    players = msg.data;
+                    updateLobbyUI();
+                } else if (msg.type === 'GOTO_INPUT') {
+                    showScreen('input');
+                } else if (msg.type === 'STATUS_UPDATE') {
+                    document.getElementById('input-status').innerText = msg.msg;
+                } else if (msg.type === 'SHOW_BATTLE') {
+                    showBattleUI(msg.data);
+                } else if (msg.type === 'SHOW_RESULT') {
+                    showResultUI(msg.data);
+                } else if (msg.type === 'SHOW_CHAMPION') {
+                    showChampion(msg.p.name, msg.p.creation);
+                }
+            });
+        }
+
+        function submitCreation() {
+            const val = document.getElementById('creation-input').value;
+            if (!val) return;
+
+            document.getElementById('creation-input').disabled = true;
+            document.getElementById('input-status').innerText = "Enviado! Aguardando outros...";
+            
+            if (isHost) {
+                // Host atualiza seu próprio estado local
+                const p = players.find(p => p.id === myId);
+                p.creation = val;
+                checkAllSubmissions();
+            } else {
+                hostConn.send({ type: 'SUBMIT_CREATION', content: val });
+            }
+        }
+
+        // --- FUNÇÕES DE UI E REDE ---
+        function broadcast(msg) {
+            connections.forEach(c => c.send(msg));
+        }
+
+        function updateLobbyUI() {
+            const ul = document.getElementById('players-ul');
+            ul.innerHTML = "";
+            players.forEach(p => {
+                const li = document.createElement('li');
+                li.innerText = p.name;
+                ul.appendChild(li);
+            });
+        }
+
+        function showBattleUI(data) {
+            showScreen('battle');
+            document.getElementById('p1-name').innerText = data.p1.name;
+            document.getElementById('p1-creation').innerText = data.p1.creation;
+            document.getElementById('p2-name').innerText = data.p2.name;
+            document.getElementById('p2-creation').innerText = data.p2.creation;
+            
+            document.getElementById('loading-ai').classList.remove('hidden');
+            document.getElementById('battle-result').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+        }
+
+        function showResultUI(data) {
+            document.getElementById('loading-ai').classList.add('hidden');
+            document.getElementById('battle-result').classList.remove('hidden');
+            
+            document.getElementById('winner-name').innerText = data.winnerName;
+            document.getElementById('ai-reason').innerText = data.reason;
+
+            if (isHost) {
+                document.getElementById('next-btn').classList.remove('hidden');
+            }
+        }
+        
+        function showChampion(name, creation) {
+            showScreen('champion');
+            document.getElementById('final-winner').innerText = name;
+            document.getElementById('final-creation').innerText = creation;
+        }
+
+    </script>
+</body>
+</html>
