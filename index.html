@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Party Game P2P Teste</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        body { font-family: monospace; background: #222; color: #fff; text-align: center; padding: 20px; }
+        #game-area { border: 2px solid #444; height: 300px; margin-top: 20px; display: flex; justify-content: center; align-items: center; }
+        button { padding: 10px 20px; cursor: pointer; font-size: 16px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <h1>Sistema de Sala P2P</h1>
+    
+    <div id="menu">
+        <p id="status">Verificando...</p>
+        <div id="host-controls" class="hidden">
+            <p>Você é o HOST.</p>
+            <p>Mande este link para seu amigo:</p>
+            <input type="text" id="share-link" readonly style="width: 80%; padding: 5px;">
+            <p>Esperando jogador entrar...</p>
+        </div>
+        <div id="client-controls" class="hidden">
+            <p>Conectando ao Host...</p>
+        </div>
+    </div>
+
+    <div id="game-area" class="hidden">
+        <div>
+            <h2 id="msg-display">Aguardando ação...</h2>
+            <button id="btn-action">CLIQUE AQUI (Enviar Ação)</button>
+        </div>
+    </div>
+
+    <script>
+        // Lógica: Se tem ?id= na URL, é cliente. Se não, é Host.
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetPeerId = urlParams.get('id');
+        
+        // Inicializa o Peer (sem servidor próprio, usa o cloud gratuito do PeerJS)
+        const peer = new Peer(); 
+        let conn = null;
+
+        peer.on('open', (myId) => {
+            if (targetPeerId) {
+                // MODO CLIENTE (JOGADOR)
+                document.getElementById('client-controls').classList.remove('hidden');
+                document.getElementById('status').innerText = "Identidade: JOGADOR";
+                connectToHost(targetPeerId);
+            } else {
+                // MODO HOST (SERVIDOR)
+                document.getElementById('host-controls').classList.remove('hidden');
+                document.getElementById('status').innerText = "Identidade: HOST";
+                
+                const currentUrl = window.location.href.split('?')[0];
+                const shareUrl = `${currentUrl}?id=${myId}`;
+                document.getElementById('share-link').value = shareUrl;
+
+                // Fica ouvindo se alguém conecta
+                peer.on('connection', (connection) => {
+                    setupConnection(connection);
+                    alert("Alguém conectou!");
+                });
+            }
+        });
+
+        // Função para o Cliente conectar no Host
+        function connectToHost(hostId) {
+            const connection = peer.connect(hostId);
+            connection.on('open', () => {
+                setupConnection(connection);
+            });
+        }
+
+        // Configuração comum para ambos quando a conexão acontece
+        function setupConnection(connection) {
+            conn = connection;
+            document.getElementById('menu').classList.add('hidden');
+            document.getElementById('game-area').classList.remove('hidden');
+
+            // Receber dados
+            conn.on('data', (data) => {
+                console.log('Recebido:', data);
+                document.getElementById('msg-display').innerText = "Recebido: " + data.acao;
+                // Exemplo: Se fosse um jogo, aqui você atualizaria a posição do player
+            });
+        }
+
+        // Enviar dados (Exemplo de gameplay)
+        document.getElementById('btn-action').addEventListener('click', () => {
+            if (conn && conn.open) {
+                const msg = "Clicou no botão! " + Math.random().toFixed(2);
+                conn.send({ acao: msg }); // Envia objeto JSON
+                document.getElementById('msg-display').innerText = "Você enviou um comando.";
+            }
+        });
+
+        peer.on('error', (err) => {
+            console.error(err);
+            alert("Erro na conexão: " + err.type);
+        });
+    </script>
+</body>
+</html>
