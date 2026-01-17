@@ -27,8 +27,6 @@
         .battle-area { font-size: 1.5rem; margin: 20px 0; }
         .vs { color: #ff0000; font-weight: bold; font-size: 2rem; margin: 10px 0; }
         .reason { font-size: 1rem; color: #aaa; margin-top: 20px; border: 1px solid #444; padding: 10px; text-align: left;}
-        
-        #api-input-area { margin-bottom: 20px; border-top: 1px solid #333; padding-top: 10px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -51,11 +49,6 @@
                 <p>Mande este link para os amigos:</p>
                 <input type="text" id="share-link" readonly onclick="this.select()">
                 
-                <div id="api-input-area">
-                    <p>🔒 ADMIN: Cole sua API Key do Google Gemini aqui:</p>
-                    <input type="password" id="api-key" placeholder="AIzaSy...">
-                </div>
-
                 <button onclick="startGame()">INICIAR TORNEIO</button>
             </div>
             <p>Jogadores Conectados:</p>
@@ -101,6 +94,11 @@
     </div>
 
     <script>
+        // ======================================================
+        // 👇👇👇 COLOQUE SUA API KEY AQUI DENTRO DAS ASPAS 👇👇👇
+        const GEMINI_API_KEY = "AIzaSyAC_ntDDWxFuikTMmxe9dfNe68ELuFWfPo";
+        // ======================================================
+
         // --- VARIÁVEIS GLOBAIS ---
         const peer = new Peer();
         let myId = null;
@@ -158,8 +156,11 @@
         }
 
         function startGame() {
-            const apiKey = document.getElementById('api-key').value;
-            if (!apiKey) { alert("O Host precisa colocar a API Key do Gemini!"); return; }
+            // Verifica se a pessoa esqueceu de trocar a chave
+            if (GEMINI_API_KEY === "COLE_SUA_CHAVE_AQUI_E_NAO_COMPARTILHE" || GEMINI_API_KEY === "") {
+                alert("ERRO NO CÓDIGO: Você precisa abrir o arquivo munera.html e colar sua API Key na variável GEMINI_API_KEY!"); 
+                return; 
+            }
             if (players.length < 2) { alert("Precisa de pelo menos 2 jogadores!"); return; }
 
             broadcast({ type: 'GOTO_INPUT' });
@@ -254,7 +255,9 @@
             document.getElementById('loading-ai').classList.remove('hidden');
             document.getElementById('battle-result').classList.add('hidden');
             
-            const apiKey = document.getElementById('api-key').value;
+            // AGORA USA A CONSTANTE LÁ DO TOPO
+            const apiKey = GEMINI_API_KEY;
+
             const prompt = `
             Você é um juiz de batalha engraçado. 
             Lutador 1: "${player1.name}" usando "${player1.creation}".
@@ -275,6 +278,14 @@
                 });
                 
                 const data = await response.json();
+                
+                // Tratamento de erro caso a chave esteja errada ou cota excedida
+                if (data.error) {
+                    console.error("Erro API:", data.error);
+                    alert("Erro na API do Gemini: " + data.error.message);
+                    throw new Error(data.error.message);
+                }
+
                 const text = data.candidates[0].content.parts[0].text;
                 // Limpeza básica para extrair JSON caso a IA mande markdown
                 const jsonStr = text.replace(/```json|```/g, '').trim();
