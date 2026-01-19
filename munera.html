@@ -22,6 +22,9 @@
 
         .btn-ready { background: #444; color: #fff; border: 2px solid #ffcc00; }
         .btn-ready.is-ready { background: #00ff00; color: #000; border-color: #00ff00; }
+        
+        .btn-secondary { background: #444; color: #fff; border: 1px solid #aaa; font-size: 1rem; padding: 10px 20px; }
+        .btn-secondary:hover { background: #666; }
 
         .hidden { display: none !important; }
         
@@ -46,11 +49,53 @@
             font-size: 1.4rem; color: #ffffff; font-weight: bold; line-height: 1.5; margin-top: 20px; 
             border: 2px solid #ffcc00; background-color: rgba(0, 0, 0, 0.8); padding: 20px; 
             text-align: left; border-radius: 10px; text-shadow: 1px 1px 2px black;
+            min-height: 100px;
         }
+
+        /* --- TELA DE VITÓRIA --- */
+        .victory-title { font-size: 1.2rem; color: #aaa; text-transform: uppercase; margin-bottom: 10px; }
+        .champion-name { 
+            font-size: 3rem; color: #ffcc00; font-weight: bold; text-transform: uppercase; 
+            word-wrap: break-word; line-height: 1.1; margin-bottom: 20px; text-shadow: 2px 2px 0px #000;
+        }
+        .trophy-icon { font-size: 4rem; margin: 10px 0 20px 0; }
+        .speech-text { 
+            font-size: 1.8rem; color: #ffffff; font-weight: bold; font-style: italic; 
+            margin-top: 20px; text-shadow: 1px 1px 5px rgba(0,0,0,0.8); 
+        }
+
+        /* --- TELA DE PLACAR --- */
+        .podium-area { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; align-items: flex-end; }
+        .podium-place { display: flex; flex-direction: column; align-items: center; }
+        .podium-rank { font-size: 2rem; font-weight: bold; }
+        .podium-name { font-size: 1.2rem; color: #ffcc00; max-width: 150px; }
+        .rank-1 { color: #ffd700; font-size: 2.5rem; order: 2; } /* Ouro */
+        .rank-2 { color: #c0c0c0; order: 1; } /* Prata */
+        .rank-3 { color: #cd7f32; order: 3; } /* Bronze */
+        
+        .battle-log { 
+            width: 100%; text-align: left; background: #222; padding: 15px; 
+            max-height: 300px; overflow-y: auto; border: 1px solid #444; margin-bottom: 20px;
+        }
+        .log-entry { margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; font-size: 0.9rem; word-wrap: break-word; }
+
+        /* --- PREPARE-SE --- */
+        .prepare-title { font-size: 3rem; color: #ff0000; font-weight: bold; animation: pulse 1s infinite; }
+        .prepare-subtitle { font-size: 1.5rem; color: #aaa; margin-top: 10px; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* Efeito de Digitação */
+        .typing-cursor::after { content: '|'; animation: blink 1s step-start infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
 
         /* Lobby Header */
         .lobby-header { width: 100%; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px;}
         .room-name-display { font-size: 2rem; color: #fff; text-transform: uppercase; margin: 0; }
+
+        /* Controles do Lobby */
+        .game-mode-selector { margin: 15px 0; background: #222; padding: 10px; border: 1px solid #444; display: inline-block; }
+        .mode-option { margin: 0 10px; cursor: pointer; }
+        .mode-option input { width: auto; margin-right: 5px; }
 
         /* Switch de Contexto */
         .context-switch { margin: 15px 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
@@ -65,11 +110,9 @@
 
         .flying-tomato {
             position: absolute; 
-            /* Tamanho grande para cobrir boa parte da tela */
-            width: 80vw; 
-            height: 80vh; 
+            width: 80vw; height: 80vh; 
             object-fit: contain;
-            animation: splatAnim 3s forwards;
+            animation: splatAnim 7s forwards; 
             pointer-events: none;
         }
 
@@ -80,10 +123,9 @@
 
         @keyframes splatAnim {
             0% { transform: scale(0.5); opacity: 0; }
-            10% { transform: scale(1.2); opacity: 1; }
-            20% { transform: scale(1); }
-            80% { opacity: 1; }
-            100% { opacity: 0; transform: translateY(50px); }
+            5% { transform: scale(1.1); opacity: 1; }
+            90% { transform: scale(1); opacity: 1; } 
+            100% { transform: scale(1); opacity: 0; } 
         }
 
         @keyframes floatUp {
@@ -94,23 +136,24 @@
 
         /* Controles do Espectador */
         #spectator-controls {
-            position: fixed; 
-            top: 50%; 
-            left: 20px; /* Canto esquerdo */
-            transform: translateY(-50%); /* Centraliza verticalmente */
-            background: rgba(0,0,0,0.8); 
-            padding: 20px 10px; 
-            border-radius: 20px;
-            border: 2px solid #444; 
-            display: flex; 
-            flex-direction: column; /* Botões um embaixo do outro */
-            gap: 15px; 
-            z-index: 100;
+            position: fixed; top: 50%; left: 20px; transform: translateY(-50%); 
+            background: rgba(0,0,0,0.8); padding: 20px 10px; border-radius: 20px;
+            border: 2px solid #444; display: flex; flex-direction: column; gap: 15px; z-index: 100;
         }
         .reaction-btn {
             background: none; border: none; font-size: 2rem; cursor: pointer; transition: 0.2s;
         }
         .reaction-btn:hover { transform: scale(1.3); }
+
+        /* --- DEBUG ERROR MODAL --- */
+        #debug-error-modal {
+            position: fixed; top: 10%; left: 10%; width: 80%; background: #300; border: 2px solid red; 
+            color: #fff; padding: 20px; z-index: 10000; overflow: auto; max-height: 80vh;
+            text-align: left; box-shadow: 0 0 20px rgba(255,0,0,0.5);
+        }
+        #debug-error-text {
+            white-space: pre-wrap; font-family: monospace; background: #000; padding: 10px;
+        }
 
     </style>
 </head>
@@ -122,6 +165,12 @@
 
     <div id="reaction-layer"></div>
 
+    <div id="debug-error-modal" class="hidden">
+        <h2 style="color: red; margin-top: 0;">ERRO NA API (Copie isso para o chat)</h2>
+        <div id="debug-error-text"></div>
+        <button onclick="document.getElementById('debug-error-modal').classList.add('hidden')" style="background: #555; margin-top: 10px;">Fechar</button>
+    </div>
+
     <h1>Munera Woke</h1>
     
     <div class="container">
@@ -132,7 +181,10 @@
             <br>
             <button id="btn-create" onclick="setupHost()" disabled>CRIAR SALA (HOST)</button>
             <br><br>
+            <p>Ou entre numa sala:</p>
             <p id="client-status" style="color: #888; font-size: 0.9rem;">(Aguardando Link...)</p>
+            <br>
+            <button id="btn-back-menu" class="btn-secondary" onclick="window.location.href='testes.html'">VOLTAR PARA SELEÇÃO DE JOGOS</button>
         </div>
 
         <div id="screen-lobby" class="hidden">
@@ -145,6 +197,11 @@
                 <p style="font-size: 0.8rem; color: #888;">LINK DA SALA:</p>
                 <input type="text" id="share-link" readonly onclick="this.select()" style="font-size: 0.8rem; padding: 5px; width: 60%;">
                 
+                <div class="game-mode-selector">
+                    <label class="mode-option"><input type="radio" name="gameMode" value="quick" onclick="updateGameMode('quick')"> Batalha Rápida (Max 2)</label>
+                    <label class="mode-option"><input type="radio" name="gameMode" value="tournament" checked onclick="updateGameMode('tournament')"> Torneio (Min 3)</label>
+                </div>
+
                 <div class="context-switch">
                     <input type="checkbox" id="context-toggle">
                     <span class="switch-label">Ativar Modo Temas (Contexto)</span>
@@ -159,10 +216,15 @@
             
             <div id="host-start-area" class="hidden">
                 <p id="ready-count" style="font-size: 0.8rem; color: #aaa;">0/0 Prontos</p>
-                <button id="btn-start" onclick="startGame()" disabled>INICIAR TORNEIO</button>
+                <button id="btn-start" onclick="startGame()" disabled>INICIAR JOGO</button>
             </div>
             
             <p id="msg-waiting-host" class="hidden" style="margin-top: 20px;">Esperando o Host iniciar...</p>
+        </div>
+
+        <div id="screen-starting" class="hidden">
+            <div class="prepare-title">Partida iniciando!</div>
+            <div class="prepare-subtitle">Prepare sua massa cerebral...</div>
         </div>
 
         <div id="screen-input" class="hidden">
@@ -191,19 +253,46 @@
             <div id="loading-ai" class="hidden">🤖 A IA está julgando...</div>
             <div id="battle-result" class="hidden">
                 <h3 style="color: #00ff00;">VENCEDOR: <span id="winner-name"></span></h3>
-                <div class="reason" id="ai-reason"></div>
+                <div class="reason typing-cursor" id="ai-reason"></div>
                 <br>
                 <button id="next-btn" class="hidden" onclick="nextBattle()">PRÓXIMA BATALHA</button>
             </div>
         </div>
         
         <div id="screen-champion" class="hidden">
-            <h1 style="color: gold;">🏆 CAMPEÃO 🏆</h1>
-            <h2 id="final-winner">Nome</h2>
-            <p>A criação suprema:</p>
-            <h3 id="final-creation" style="color: #ffcc00;">Coisa</h3>
+            <p class="victory-title">Discurso de Vitória de</p>
+            <div id="final-creation" class="champion-name">...</div>
+            <div class="trophy-icon">🏆</div>
+            <div id="champion-speech" class="speech-text typing-cursor">Gerando discurso...</div>
+            <br><br>
+            <button id="btn-show-recap" class="hidden" onclick="hostTriggerRecap()">VER PLACAR (HOST)</button>
+            <p id="msg-wait-recap" class="hidden" style="color: #aaa;">O Host está admirando a vitória...</p>
+        </div>
+
+        <div id="screen-recap" class="hidden">
+            <h2>🏆 PLACAR FINAL 🏆</h2>
+            
+            <div class="podium-area" id="podium-area"></div>
+
+            <button onclick="document.getElementById('battle-log-container').classList.toggle('hidden')" class="btn-secondary" style="margin-bottom: 10px; font-size: 0.8rem;">
+                📜 Mostrar/Esconder Histórico Completo
+            </button>
+            
+            <div id="battle-log-container" class="battle-log hidden"></div>
+
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button id="btn-rematch" onclick="handleRematchClick()">JOGAR NOVAMENTE</button>
+                <button id="btn-host-end" class="btn-secondary hidden" onclick="hostEndGame()">VOLTAR AO MENU (HOST)</button>
+            </div>
+            <p id="rematch-status" style="font-size: 0.8rem; margin-top: 5px; color: #aaa;"></p>
+        </div>
+
+        <div id="screen-host-ended" class="hidden">
+            <h2>O Host encerrou o jogo.</h2>
+            <p>Obrigado por jogar Munera Woke!</p>
             <button onclick="location.reload()">VOLTAR AO MENU</button>
         </div>
+
     </div>
 
     <div id="spectator-controls" class="hidden">
@@ -214,8 +303,8 @@
 
     <script>
         // ======================================================
-        // 👇👇👇 COLOQUE SUA API KEY DA GROQ AQUI 👇👇👇
-        const GROQ_API_KEY = "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"; 
+        // 👇👇👇 COLOQUE SUA API KEY DO OPENROUTER AQUI 👇👇👇
+        const OPENROUTER_API_KEY = "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"; 
         // ======================================================
 
         const peer = new Peer();
@@ -227,16 +316,17 @@
         let roomName = "MUNERA WOKE";
         let isReady = false;
 
-        // Estado do Jogo
         let players = []; 
         let battleQueue = [];
         let currentRound = [];
+        let eliminatedPlayers = []; 
+        let battleHistoryLog = []; 
         
-        // Novas Variáveis
-        let currentTheme = null; // Se null, sem tema
+        let gameMode = 'tournament'; 
+        let currentTheme = null;
         let isSpectator = false;
+        let rematchReadyCount = 0;
 
-        // Lista de Temas
         const THEMES = [
             "Só vale coisas cômicas",
             "Só vale pessoas reais",
@@ -246,11 +336,7 @@
             "Só vale ações"
         ];
 
-        // URLs dos GIFs de Tomate (Links diretos para GIFs do Tenor/Imgur funcionam melhor)
-        const TOMATO_GIFS = [
-            "https://tenor.com/pt-BR/view/tomato-splat-tomato-throw-throwing-tomato-gif-11723082084989714691",
-            "https://tenor.com/pt-BR/view/tomato-throwing-tomatoes-tomato-throw-gif-2488179709724064707"
-        ];
+        const TOMATO_GIFS = ["tomato-splat.gif"];
 
         function playSound(id) {
             const audio = document.getElementById('sfx-' + id);
@@ -260,7 +346,7 @@
             }
         }
 
-        const screens = ['menu', 'lobby', 'input', 'battle', 'champion'];
+        const screens = ['menu', 'lobby', 'starting', 'input', 'battle', 'champion', 'recap', 'host-ended'];
         function showScreen(name) {
             screens.forEach(s => document.getElementById('screen-'+s).classList.add('hidden'));
             document.getElementById('screen-'+name).classList.remove('hidden');
@@ -269,12 +355,34 @@
         function validateName() {
             const name = document.getElementById('my-name-input').value.trim();
             const btn = document.getElementById('btn-create');
-            if (name.length > 0) {
-                btn.disabled = false;
-                myName = name;
-            } else {
-                btn.disabled = true;
+            if (name.length > 0) btn.disabled = false; myName = name;
+            if (name.length == 0) btn.disabled = true;
+        }
+
+        function showError(msg) {
+            const modal = document.getElementById('debug-error-modal');
+            const text = document.getElementById('debug-error-text');
+            modal.classList.remove('hidden');
+            text.innerText = msg;
+        }
+
+        let typingTimeout = null;
+        function typeWriter(elementId, text, speed = 30) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = "";
+            element.classList.add("typing-cursor");
+            let i = 0;
+            if (typingTimeout) clearTimeout(typingTimeout);
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    typingTimeout = setTimeout(type, speed);
+                } else {
+                    element.classList.remove("typing-cursor");
+                }
             }
+            type();
         }
 
         // --- PEER JS SETUP ---
@@ -288,6 +396,9 @@
                 const btn = document.getElementById('btn-create');
                 btn.innerText = "ENTRAR NA SALA";
                 btn.onclick = () => joinGame(targetHostId);
+                
+                // ESCONDE O BOTÃO DE VOLTAR PARA CLIENTES (Correção)
+                document.getElementById('btn-back-menu').classList.add('hidden');
             }
         });
 
@@ -296,7 +407,6 @@
             if (!myName) return alert("Digite um nome!");
             isHost = true;
             showScreen('lobby');
-            
             document.getElementById('host-link-area').classList.remove('hidden');
             document.getElementById('host-start-area').classList.remove('hidden');
             document.getElementById('share-link').value = window.location.href.split('?')[0] + '?id=' + myId;
@@ -311,8 +421,9 @@
                 conn.on('open', () => {
                     playSound('ding');
                     conn.send({ type: 'UPDATE_ROOM_NAME', name: roomName });
+                    conn.send({ type: 'UPDATE_GAME_MODE', mode: gameMode });
                 });
-                conn.on('data', (data) => handleDataFromClient(data, conn.peer));
+                conn.on('data', (data) => handleDataFromClient(data, conn.peer, conn));
             });
         }
 
@@ -322,23 +433,46 @@
             broadcast({ type: 'UPDATE_ROOM_NAME', name: roomName });
         }
 
+        function updateGameMode(mode) {
+            gameMode = mode;
+            broadcast({ type: 'UPDATE_GAME_MODE', mode: mode });
+        }
+
         function startGame() {
-            if (GROQ_API_KEY.includes("COLE_SUA_CHAVE")) { alert("Configure a API Key!"); return; }
-            if (players.length < 2) { alert("Precisa de pelo menos 2 jogadores!"); return; }
+            if (OPENROUTER_API_KEY.includes("sk-or-v1") === false) { alert("Cole sua API Key do OpenRouter correta!"); return; }
+            
+            if (gameMode === 'quick') {
+                if (players.length > 2) { alert("Batalha Rápida suporta no máximo 2 jogadores!"); return; }
+                if (players.length < 2) { alert("Precisa de 2 jogadores!"); return; }
+            } else {
+                if (players.length < 3) { alert("Torneio precisa de pelo menos 3 jogadores!"); return; }
+            }
             
             const notReady = players.filter(p => !p.isReady);
             if (notReady.length > 0) { alert("Todos precisam clicar em 'ESTOU PRONTO'!"); return; }
 
-            // Lógica de Tema
             const useTheme = document.getElementById('context-toggle').checked;
             currentTheme = useTheme ? THEMES[Math.floor(Math.random() * THEMES.length)] : null;
 
-            broadcast({ type: 'GOTO_INPUT', theme: currentTheme });
-            setupInputScreen(currentTheme);
+            broadcast({ type: 'GAME_STARTING', theme: currentTheme });
+            performStartSequence(currentTheme);
         }
 
-        function handleDataFromClient(data, peerId) {
+        function performStartSequence(theme) {
+            showScreen('starting');
+            const delay = (gameMode === 'quick') ? 1500 : 4000;
+            setTimeout(() => {
+                showScreen('input');
+                setupInputScreen(theme);
+            }, delay);
+        }
+
+        function handleDataFromClient(data, peerId, conn) {
             if (data.type === 'JOIN_REQUEST') {
+                if (players.find(p => p.name === data.name)) {
+                    conn.send({ type: 'ERROR', msg: 'Nome já em uso nesta sala!' });
+                    return;
+                }
                 const newPlayer = { id: peerId, name: data.name, creation: "", isReady: false };
                 if (!players.find(p => p.id === peerId)) {
                     players.push(newPlayer);
@@ -348,20 +482,18 @@
             }
             else if (data.type === 'TOGGLE_READY') {
                 const p = players.find(p => p.id === peerId);
-                if (p) {
-                    p.isReady = data.isReady;
-                    broadcastState();
-                    playSound('ding');
-                }
+                if (p) { p.isReady = data.isReady; broadcastState(); playSound('ding'); }
             }
             else if (data.type === 'SUBMIT_CREATION') {
                 const p = players.find(p => p.id === peerId);
                 if (p) { p.creation = data.content; checkAllSubmissions(); }
             }
             else if (data.type === 'REACTION') {
-                // Re-transmite para todos (incluindo host)
                 spawnReaction(data.kind);
                 broadcast({ type: 'SPAWN_REACTION', kind: data.kind });
+            }
+            else if (data.type === 'CLIENT_REMATCH') {
+                handleClientRematch(peerId);
             }
         }
 
@@ -385,6 +517,9 @@
         function joinGame(hostId) {
             if (!myName) return alert("Digite um nome!");
             document.getElementById('client-status').innerText = "Conectando...";
+            // Esconde botão de voltar se for cliente
+            document.getElementById('btn-back-menu').classList.add('hidden');
+            
             hostConn = peer.connect(hostId);
             
             hostConn.on('open', () => {
@@ -395,7 +530,11 @@
             });
 
             hostConn.on('data', (msg) => {
-                if (msg.type === 'UPDATE_PLAYERS') {
+                if (msg.type === 'ERROR') {
+                    alert(msg.msg);
+                    location.reload();
+                }
+                else if (msg.type === 'UPDATE_PLAYERS') {
                     players = msg.data;
                     updateLobbyUI();
                 } 
@@ -403,9 +542,12 @@
                     roomName = msg.name;
                     document.getElementById('room-name-text').innerText = roomName;
                 }
-                else if (msg.type === 'GOTO_INPUT') {
+                else if (msg.type === 'UPDATE_GAME_MODE') {
+                    gameMode = msg.mode;
+                }
+                else if (msg.type === 'GAME_STARTING') {
                     currentTheme = msg.theme;
-                    setupInputScreen(msg.theme);
+                    performStartSequence(msg.theme);
                 } else if (msg.type === 'STATUS_UPDATE') {
                     document.getElementById('input-status').innerText = msg.msg;
                 } else if (msg.type === 'SHOW_BATTLE') {
@@ -414,78 +556,64 @@
                     showResultUI(msg.data);
                 } else if (msg.type === 'SHOW_CHAMPION') {
                     showChampion(msg.p.name, msg.p.creation);
+                } else if (msg.type === 'UPDATE_SPEECH') {
+                    updateChampionSpeech(msg.speech);
                 } else if (msg.type === 'SPAWN_REACTION') {
                     spawnReaction(msg.kind);
+                } else if (msg.type === 'HOST_ENDED') {
+                    showScreen('host-ended');
+                } else if (msg.type === 'SHOW_RECAP') {
+                    renderRecapScreen(msg.podium, msg.log);
+                } else if (msg.type === 'RESET_GAME') {
+                    resetLocalGame();
                 }
             });
         }
 
+        // [FUNÇÕES DE TOGGLE READY, UPDATE LOBBY, INPUT SCREEN - MANTIDAS IGUAIS]
         function toggleReady() {
             isReady = !isReady;
             const btn = document.getElementById('btn-toggle-ready');
-            if (isReady) {
-                btn.innerText = "ESTOU PRONTO!";
-                btn.classList.add('is-ready');
-            } else {
-                btn.innerText = "NÃO ESTOU PRONTO";
-                btn.classList.remove('is-ready');
-            }
-
+            if (isReady) { btn.innerText = "ESTOU PRONTO!"; btn.classList.add('is-ready'); } 
+            else { btn.innerText = "NÃO ESTOU PRONTO"; btn.classList.remove('is-ready'); }
             playSound('ding');
-
             if (isHost) {
                 const me = players.find(p => p.id === myId);
                 if (me) me.isReady = isReady;
                 broadcastState();
-            } else {
-                hostConn.send({ type: 'TOGGLE_READY', isReady: isReady });
-            }
+            } else { hostConn.send({ type: 'TOGGLE_READY', isReady: isReady }); }
         }
 
         function updateLobbyUI() {
             const ul = document.getElementById('players-ul');
             ul.innerHTML = "";
             let readyCount = 0;
-
             players.forEach(p => {
                 if (p.isReady) readyCount++;
                 const li = document.createElement('li');
                 let displayName = p.name;
-                if (p.id === myId) {
-                    displayName += " (Você)";
-                    li.style.border = "1px solid #ffcc00"; 
-                }
+                if (p.id === myId) { displayName += " (Você)"; li.style.border = "1px solid #ffcc00"; }
                 const statusIcon = p.isReady ? "✅" : "⏳";
                 const statusColor = p.isReady ? "#00ff00" : "#666";
                 li.innerHTML = `<span>${displayName}</span><span class="status-icon" style="color: ${statusColor}">${statusIcon}</span>`;
                 ul.appendChild(li);
             });
-
             if (isHost) {
                 const btnStart = document.getElementById('btn-start');
                 document.getElementById('ready-count').innerText = `${readyCount}/${players.length} Prontos`;
                 if (players.length >= 2 && readyCount === players.length) {
-                    btnStart.disabled = false;
-                    btnStart.style.opacity = "1";
-                    btnStart.innerText = "INICIAR TORNEIO";
+                    btnStart.disabled = false; btnStart.style.opacity = "1"; btnStart.innerText = "INICIAR JOGO";
                 } else {
-                    btnStart.disabled = true;
-                    btnStart.style.opacity = "0.5";
+                    btnStart.disabled = true; btnStart.style.opacity = "0.5";
                 }
             }
         }
 
         function setupInputScreen(theme) {
-            showScreen('input');
             const themeArea = document.getElementById('theme-area');
             const themeText = document.getElementById('theme-text');
-            
-            if (theme) {
-                themeArea.classList.remove('hidden');
-                themeText.innerText = theme;
-            } else {
-                themeArea.classList.add('hidden');
-            }
+            if (theme) { themeArea.classList.remove('hidden'); themeText.innerText = theme; } 
+            else { themeArea.classList.add('hidden'); }
         }
 
         function submitCreation() {
@@ -493,20 +621,19 @@
             if (!val) return;
             document.getElementById('creation-input').disabled = true;
             document.getElementById('input-status').innerText = "Enviado! Aguardando outros...";
-            
             if (isHost) {
                 const p = players.find(p => p.id === myId);
                 p.creation = val;
                 checkAllSubmissions();
-            } else {
-                hostConn.send({ type: 'SUBMIT_CREATION', content: val });
-            }
+            } else { hostConn.send({ type: 'SUBMIT_CREATION', content: val }); }
         }
 
         // --- SISTEMA DE BATALHA ---
         function startTournament() {
             currentRound = [...players];
             currentRound.sort(() => Math.random() - 0.5);
+            eliminatedPlayers = [];
+            battleHistoryLog = [];
             generateBattles();
         }
 
@@ -527,8 +654,10 @@
             if (battleQueue.length === 0) {
                 if (currentRound.length === 1) {
                     const champ = currentRound[0];
-                    broadcast({ type: 'SHOW_CHAMPION', p: {name: champ.name, creation: champ.creation} });
-                    showChampion(champ.name, champ.creation);
+                    const champData = { name: champ.name, creation: champ.creation };
+                    broadcast({ type: 'SHOW_CHAMPION', p: champData });
+                    showChampion(champData.name, champData.creation);
+                    generateVictorySpeech(champ.name, champ.creation);
                     return;
                 }
                 generateBattles();
@@ -549,44 +678,30 @@
             };
             broadcast({ type: 'SHOW_BATTLE', data: battleData });
             showBattleUI(battleData);
-            callGroqAPI(battle.p1, battle.p2);
+            
+            callOpenRouterAPI(battle.p1, battle.p2);
         }
 
         // --- SISTEMA DE REAÇÕES ---
         function sendReaction(kind) {
-            if (isHost) {
-                spawnReaction(kind);
-                broadcast({ type: 'SPAWN_REACTION', kind: kind });
-            } else {
-                hostConn.send({ type: 'REACTION', kind: kind });
-            }
+            if (isHost) { spawnReaction(kind); broadcast({ type: 'SPAWN_REACTION', kind: kind }); } 
+            else { hostConn.send({ type: 'REACTION', kind: kind }); }
         }
-
         function spawnReaction(kind) {
             const container = document.getElementById('reaction-layer');
-            
             if (kind === 'tomato') {
                 const img = document.createElement('img');
-                img.src = TOMATO_GIFS[Math.floor(Math.random() * TOMATO_GIFS.length)];
+                const gifUrl = TOMATO_GIFS[Math.floor(Math.random() * TOMATO_GIFS.length)];
+                img.src = `${gifUrl}?t=${Date.now()}`; 
                 img.className = 'flying-tomato';
-                
-                // Posição aleatória dentro de um limite seguro para não sair muito da tela
-                img.style.left = (Math.random() * 20) + '%'; // Varia entre 0% e 20% da esquerda (para centralizar o impacto visual)
-                img.style.top = (Math.random() * 20) + '%';
-                
-                // Espelhar aleatoriamente horizontalmente
+                img.style.left = (Math.random() * 20) + '%'; img.style.top = (Math.random() * 20) + '%';
                 if (Math.random() > 0.5) img.style.transform = 'scaleX(-1)';
-
                 container.appendChild(img);
-                // playSound('splat'); // REMOVIDO O SOM
-                setTimeout(() => img.remove(), 3000);
-            } 
-            else if (kind === 'fire') {
+                setTimeout(() => img.remove(), 7000);
+            } else if (kind === 'fire') {
                 const el = document.createElement('div');
-                el.innerText = "🔥";
-                el.className = 'flying-fire';
-                el.style.left = Math.random() * 90 + '%';
-                el.style.bottom = '0px';
+                el.innerText = "🔥"; el.className = 'flying-fire';
+                el.style.left = Math.random() * 90 + '%'; el.style.bottom = '0px';
                 container.appendChild(el);
                 setTimeout(() => el.remove(), 2000);
             }
@@ -595,76 +710,97 @@
         function titleCase(str) {
             const ignore = ['de', 'da', 'do', 'das', 'dos', 'e', 'a', 'o', 'as', 'os', 'em', 'na', 'no', 'nas', 'nos', 'para', 'por', 'com', 'um', 'uma', 'uns', 'umas'];
             return str.toLowerCase().split(' ').map((word, i) => {
-                if (i === 0 || !ignore.includes(word)) {
-                    return word.charAt(0).toUpperCase() + word.slice(1);
-                }
+                if (i === 0 || !ignore.includes(word)) return word.charAt(0).toUpperCase() + word.slice(1);
                 return word;
             }).join(' ');
         }
 
-        // --- IA ---
-        async function callGroqAPI(player1, player2) {
+        // --- IA via OpenRouter ---
+        async function callOpenRouterAPI(player1, player2) {
             document.getElementById('loading-ai').classList.remove('hidden');
             document.getElementById('battle-result').classList.add('hidden');
             
-            const apiKey = GROQ_API_KEY;
-            
-            // Formatando as criações (Capitalização)
+            const apiKey = OPENROUTER_API_KEY;
             const c1 = titleCase(player1.creation);
             const c2 = titleCase(player2.creation);
 
-            // PROMPT ORIGINAL (Mantido conforme pedido, sem a injeção de tema)
-            const originalPromptPersonality = `Você é uma IA engraçada e sarcástica que decide quem vence uma batalha insana entre duas criações malucas dentro de um servidor no discord.
-            Seja sempre imprevisível, mas mantenha o bom humor. Não escolha aleatoriamente: pense nos nomes e imagine quem venceria num combate maluco. O público do Discord vai rir da sua resposta, então capricha.
-            Não use hashtags. Não se prenda apenas a criações, humanos, animais, ações nem nada; seja apenas criativo para imaginar um cenario onde as duas "coisas" batalham, mesmo que um seja uma ação e o outro seja uma pessoa, por exemplo.
-            Não seja sempre lógico para o que realmente ganharia, as vezes vale mais uma piada engraçada do que uma batalha justa...
-            Fale como se você fosse um adolescente que usa muito twitter, você é "woke", mas não seja muito esteriotipado, ainda fale normalmente mas as vezes mostre essa sua personalidade "woke".
-            Faça referências sempre que puder, então do nada cite alguma outra coisa da criação ou algo que se encaixe em alguma das criações, só seja criativo ao fazer grandes referências engraçadas.
-            As referências não podem ser tão genéricas, tipo "tio chato da familia", pegue algo da internet mesmo, tipo "paulista desgraçado", não tenha medo do cancelamento, seja sem limites, mas o mais engraçado possível.
-            Pegue referencias atuais de 2025 se for possível, e não seja tão forçado, não precisa usar referencias o tempo todo, apenas quando for necessário.
-            Pense mais na piada em si com as criações com talvez referencias simples antes de pensar na referencia suprema, pq ela tem que ser uma referencia muito boa usada na hora certa.
-            Quando algum jogador escrever algo que refira a ele mesmo, tipo "eu" ou "meu braço", se refira ao proprio jogador mesmo, falando dele, e não tenha medo do zoar ou vangloriar o jogador, podendo chamar ele de fracote ou de forte pra caramba.
-            Sua zueira tem que ser algo engraçado de forma natural, e não algo super forçado.
-            Nunca comece sua resposta com um "Porque", seja apenas natural e as vezes altere o estilo da resposta pra algo criativo e engraçado, falando como que tal criação ganhou, principalmente imaginando a situação da briga.
-            Primeiro procure sobre o nome das criações pra ver se é referencia a algo minimamente famoso, tipo Grupo Revelação ou Turma do Pagode, pq seria legal uma resposta inspirada nas referencias originais.
-            NAO USE LITERALMENTE OS EXEMPLOS DO PROMPT, SÃO APENAS PARA VOCÊ USAR COMO EXEMPLO E FALAR COISAS QUE SÃO NESSE ESTILO DE HUMOR, RESPOSTA, ETC.
-            Faça piadas de humor negro quando for o momento.`;
+            const systemPrompt = `Role: Você é o Juiz Gen-Z da "Rinha de Criações". Sua personalidade é de um usuário "cronicamente online" do Twitter: ácido, sarcástico, levemente "woke", mas com humor negro e referências pop/memes brasileiros atuais.
 
-            const userPromptContent = `As criações são:
-            👤 "${player1.name}" (ID: 1) com: "${c1}"
-            👤 "${player2.name}" (ID: 2) com: "${c2}"
-            Escolha UM vencedor e diga o motivo mais engraçado possível.`;
+Diretrizes:
+1. Lógica do Caos: O vencedor não é o mais forte, mas o que gera a cena mais engraçada ou absurda.
+2. Identificação de Jogador: Se o item for "eu", "meu braço", etc., quebre a quarta parede e zoe (ou exalte) o jogador diretamente.
+3. Referências: Tente conectar os itens a memes, músicas (pagode, funk, pop) ou subcelebridades se o contexto permitir.
+4. Estilo: Não use hashtags. Não comece frases com "Porque". Seja direto e caótico.
+
+Formato de Saída (JSON Obrigatório):
+{
+  "winner_name": "The exact name of the winner (PlayerName1 or PlayerName2)",
+  "winner_id": 1,
+  "reason": "<string curta, max 5 sentences, descrevendo a fatalidade ou a humilhação>"
+}
+CRITICAL: The 'winner_name' must be EXACTLY one of the two fighter names provided.`;
+
+            const userPromptContent = `Batalha:
+ID 1: "${player1.name}" usando "${c1}"
+ID 2: "${player2.name}" usando "${c2}"
+
+Quem vence?`;
 
             try {
-                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-                    body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
-                        messages: [
-                            { role: "system", content: originalPromptPersonality + `\nResponda JSON: {"winner_id": 1 ou 2, "reason": "texto"}` },
-                            { role: "user", content: userPromptContent }
-                        ],
-                        temperature: 0.8, max_tokens: 400, response_format: { type: "json_object" } 
-                    })
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}`, "HTTP-Referer": window.location.href, "X-Title": "Munera Woke" },
+                    body: JSON.stringify({ model: "xiaomi/mimo-v2-flash:free", messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPromptContent }], temperature: 0.8, max_tokens: 400 })
                 });
 
+                if (!response.ok) throw new Error(`OpenRouter API Error`);
                 const data = await response.json();
-                const result = JSON.parse(data.choices[0].message.content);
-                const winner = (result.winner_id == 1 || result.winner_id == "1") ? player1 : player2;
-                const loserId = (winner.id === player1.id) ? player2.id : player1.id;
-                
-                // Formatar a criação vencedora também
-                const winnerCreationTitle = titleCase(winner.creation);
+                let contentText = data.choices[0].message.content.replace(/```json/g, "").replace(/```/g, "").trim();
+                let result = JSON.parse(contentText);
 
-                currentRound.push(winner);
+                // --- LÓGICA DE CORREÇÃO DE VENCEDOR POR NOME ---
+                const p1Name = player1.name.trim().toLowerCase();
+                const p2Name = player2.name.trim().toLowerCase();
+                // Tenta pegar o nome retornado pela IA, se existir
+                const aiWinnerName = (result.winner_name || "").trim().toLowerCase();
+
+                let winner, loser;
+
+                // 1. Tenta casar pelo nome (Mais confiável se a IA descreve o vencedor)
+                if (aiWinnerName.includes(p1Name) || aiWinnerName === p1Name) {
+                    winner = player1;
+                    loser = player2;
+                } else if (aiWinnerName.includes(p2Name) || aiWinnerName === p2Name) {
+                    winner = player2;
+                    loser = player1;
+                } else {
+                    // 2. Fallback para ID se o nome falhar ou não vier
+                    const idWin = result.winner_id;
+                    if (idWin == 1 || idWin == "1") {
+                        winner = player1;
+                        loser = player2;
+                    } else {
+                        winner = player2;
+                        loser = player1;
+                    }
+                }
                 
-                // AQUI ESTÁ A MUDANÇA DO NOME: winnerName agora recebe a criação formatada
+                const winnerCreationTitle = titleCase(winner.creation);
+                
+                currentRound.push(winner);
+                eliminatedPlayers.push(loser);
+                
+                battleHistoryLog.push({
+                    p1: player1.name, c1: c1,
+                    p2: player2.name, c2: c2,
+                    winner: winner.name, reason: result.reason
+                });
+
                 const resData = { 
-                    winnerName: winnerCreationTitle, // Mostra a CRIAÇÃO como vencedora
+                    winnerName: winnerCreationTitle, 
                     reason: result.reason, 
                     winnerId: winner.id, 
-                    loserId: loserId 
+                    loserId: loser.id 
                 };
                 
                 broadcast({ type: 'SHOW_RESULT', data: resData });
@@ -672,10 +808,48 @@
 
             } catch (error) {
                 console.error(error);
-                currentRound.push(player1); // Fallback
-                const resData = { winnerName: titleCase(player1.creation), reason: "A IA explodiu. W.O.!", winnerId: player1.id, loserId: player2.id };
+                currentRound.push(player1); eliminatedPlayers.push(player2);
+                const resData = { winnerName: titleCase(player1.creation), reason: "A IA foi cancelada no Twitter. W.O.!", winnerId: player1.id, loserId: player2.id };
                 broadcast({ type: 'SHOW_RESULT', data: resData });
                 showResultUI(resData);
+            }
+        }
+
+        async function generateVictorySpeech(championName, championCreation) {
+            const apiKey = OPENROUTER_API_KEY;
+            const prompt = `
+Você é "${championCreation}".
+Finja ser "${championCreation}" e fale algo engraçado.
+Mesmo que seja um conceito ou até um objeto, FINJA SER ISSO.
+Você não explica o que é, você simplesmente É.
+Seja curto, máximo 2-3 frases, cheio de sarcasmo, humor e referências diretas ou indiretas a "${championCreation}".
+Tente imaginar a personalidade do(a) "${championCreation}" e use ela, da melhor forma possível. É a sua personalidade.
+Seja sempre imprevisível.
+Não aja como se você estivesse fazendo uma piada com o nome, porque VOCÊ é o nome.
+Não use hashtags.
+Vá direto ao ponto.
+Máximo 2-3 frases.
+
+Exemplo:
+Se você for "Toon Force", um discurso poderia ser:
+"*Puxa um martelo comicamente gigante* Lógica? Física? Eu não sei o que é isso. Isso é tudo p-pessoal!"
+
+Agora, gere a mensagem fingindo ser "${championCreation}":
+`;
+            try {
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}`, "HTTP-Referer": window.location.href, "X-Title": "Munera Woke" },
+                    body: JSON.stringify({ model: "xiaomi/mimo-v2-flash:free", messages: [{ role: "user", content: prompt }], temperature: 0.8, max_tokens: 300 })
+                });
+                const data = await response.json();
+                const speechText = data.choices[0].message.content.trim();
+                broadcast({ type: 'UPDATE_SPEECH', speech: speechText });
+                updateChampionSpeech(speechText);
+            } catch (error) {
+                const fallbackSpeech = "Eu venci e nem sei o que dizer... #bug";
+                broadcast({ type: 'UPDATE_SPEECH', speech: fallbackSpeech });
+                updateChampionSpeech(fallbackSpeech);
             }
         }
 
@@ -701,23 +875,177 @@
             document.getElementById('loading-ai').classList.add('hidden');
             document.getElementById('battle-result').classList.remove('hidden');
             document.getElementById('winner-name').innerText = data.winnerName;
-            document.getElementById('ai-reason').innerText = data.reason;
             
-            // Verifica se eu perdi para virar espectador
-            if (myId === data.loserId) {
-                isSpectator = true;
-                document.getElementById('spectator-controls').classList.remove('hidden');
-            }
+            typeWriter('ai-reason', data.reason, 30); 
+            
+            if (myId === data.loserId) { isSpectator = true; document.getElementById('spectator-controls').classList.remove('hidden'); }
 
-            if (isHost) document.getElementById('next-btn').classList.remove('hidden');
+            if (isHost) {
+                const btn = document.getElementById('next-btn');
+                btn.classList.remove('hidden');
+                
+                if (battleQueue.length === 0) {
+                    if (currentRound.length === 1) { btn.innerText = "TERMINAR BATALHA"; } 
+                    else { btn.innerText = "PRÓXIMA RODADA"; }
+                } else { btn.innerText = "PRÓXIMA BATALHA"; }
+            }
         }
         
         function showChampion(name, creation) {
             playSound('win');
             showScreen('champion');
-            document.getElementById('final-winner').innerText = name;
             document.getElementById('final-creation').innerText = creation;
-            document.getElementById('spectator-controls').classList.add('hidden'); // Esconde controles no fim
+            document.getElementById('champion-speech').innerText = "...";
+            document.getElementById('champion-speech').classList.add("typing-cursor");
+            document.getElementById('spectator-controls').classList.add('hidden'); 
+            
+            // Botão "VER PLACAR" apenas para Host
+            if (isHost) {
+                document.getElementById('btn-show-recap').classList.remove('hidden');
+                document.getElementById('msg-wait-recap').classList.add('hidden');
+            } else {
+                document.getElementById('btn-show-recap').classList.add('hidden');
+                document.getElementById('msg-wait-recap').classList.remove('hidden');
+            }
+        }
+
+        function updateChampionSpeech(speech) {
+            if (speech) { typeWriter('champion-speech', `"${speech}"`, 40); } 
+            else { document.getElementById('champion-speech').innerText = "..."; }
+        }
+
+        // --- SISTEMA DE PLACAR E RECAP ---
+        function hostTriggerRecap() {
+            // Apenas host chama isso. Prepara dados e manda para todos.
+            // Precisamos montar os dados do podium e log aqui
+            const first = currentRound[0];
+            const second = eliminatedPlayers[eliminatedPlayers.length - 1]; 
+            const third = eliminatedPlayers[eliminatedPlayers.length - 2]; 
+            
+            const podiumData = {
+                first: first ? first.name : null,
+                second: second ? second.name : null,
+                third: third ? third.name : null
+            };
+
+            const logData = battleHistoryLog; // Log completo do host
+
+            broadcast({ type: 'SHOW_RECAP', podium: podiumData, log: logData });
+            renderRecapScreen(podiumData, logData);
+        }
+
+        function renderRecapScreen(podiumData, logData) {
+            showScreen('recap');
+            
+            // Render Podium
+            const podium = document.getElementById('podium-area');
+            podium.innerHTML = "";
+            if (podiumData.second) podium.innerHTML += `<div class="podium-place rank-2"><div class="podium-rank">2º</div><div class="podium-name">${podiumData.second}</div></div>`;
+            if (podiumData.first) podium.innerHTML += `<div class="podium-place rank-1"><div class="podium-rank">1º</div><div class="podium-name">${podiumData.first}</div></div>`;
+            if (podiumData.third) podium.innerHTML += `<div class="podium-place rank-3"><div class="podium-rank">3º</div><div class="podium-name">${podiumData.third}</div></div>`;
+
+            // Render Log (Completo)
+            const container = document.getElementById('battle-log-container');
+            container.innerHTML = "";
+            logData.forEach((log, index) => {
+                container.innerHTML += `
+                    <div class="log-entry">
+                        <strong style="color:#ffcc00">Batalha ${index + 1}:</strong> ${log.p1} (${log.c1}) vs ${log.p2} (${log.c2})<br>
+                        <span style="color:#00ff00">Vencedor: ${log.winner}</span> - <i>"${log.reason}"</i>
+                    </div>`;
+            });
+
+            // Configuração do botão de rematch
+            const btnRematch = document.getElementById('btn-rematch');
+            const statusTxt = document.getElementById('rematch-status');
+            btnRematch.disabled = false;
+            btnRematch.style.background = "#ffcc00";
+            btnRematch.innerText = "JOGAR NOVAMENTE";
+            statusTxt.innerText = "";
+
+            if (isHost) {
+                document.getElementById('btn-host-end').classList.remove('hidden');
+                // Host começa desabilitado até todos clientes darem ready
+                btnRematch.disabled = true;
+                btnRematch.style.background = "#555";
+                btnRematch.innerText = "JOGAR NOVAMENTE";
+                statusTxt.innerText = `Aguardando jogadores... (0/${players.length - 1})`;
+            }
+        }
+
+        // --- SISTEMA DE REVANCHE E FIM ---
+        function hostEndGame() {
+            broadcast({ type: 'HOST_ENDED' });
+            location.reload(); 
+        }
+
+        function handleRematchClick() {
+            const btn = document.getElementById('btn-rematch');
+            btn.disabled = true;
+            btn.style.background = "#555";
+
+            if (isHost) {
+                // Host clicou para INICIAR (só libera se todos estiverem prontos, ver handleClientRematch)
+                // Se o botão estava habilitado pro host, é porque todos estão prontos.
+                startRematchCountdown();
+            } else {
+                // Cliente clicou para dizer que está pronto
+                btn.innerText = "Aguardando Host...";
+                hostConn.send({ type: 'CLIENT_REMATCH' });
+            }
+        }
+
+        function handleClientRematch(peerId) {
+            if (!isHost) return;
+            rematchReadyCount++;
+            const totalClients = players.length - 1; // Exclui host
+            
+            const btn = document.getElementById('btn-rematch');
+            const statusTxt = document.getElementById('rematch-status');
+            statusTxt.innerText = `Aguardando jogadores... (${rematchReadyCount}/${totalClients})`;
+
+            if (rematchReadyCount >= totalClients) {
+                // Todos clientes prontos, libera botão pro host
+                btn.disabled = false;
+                btn.style.background = "#ffcc00";
+                btn.innerText = "INICIAR REVANCHE";
+                statusTxt.innerText = "Todos prontos! Clique para iniciar.";
+            }
+        }
+
+        function startRematchCountdown() {
+            const btn = document.getElementById('btn-rematch');
+            btn.disabled = true;
+            let seconds = 3;
+            btn.innerText = `Iniciando em ${seconds}...`;
+            
+            const timer = setInterval(() => {
+                seconds--;
+                btn.innerText = `Iniciando em ${seconds}...`;
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                    broadcast({ type: 'RESET_GAME' });
+                    resetLocalGame();
+                }
+            }, 1000);
+        }
+
+        function resetLocalGame() {
+            players.forEach(p => { p.creation = ""; p.isReady = false; });
+            battleQueue = [];
+            currentRound = [];
+            eliminatedPlayers = [];
+            battleHistoryLog = [];
+            rematchReadyCount = 0;
+            isSpectator = false;
+            
+            // UI Reset
+            document.getElementById('creation-input').disabled = false;
+            document.getElementById('creation-input').value = "";
+            document.getElementById('input-status').innerText = "";
+            document.getElementById('spectator-controls').classList.add('hidden');
+
+            performStartSequence(currentTheme); 
         }
 
     </script>
